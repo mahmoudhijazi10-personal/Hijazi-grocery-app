@@ -1,0 +1,1290 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>سلة البيت</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Aref+Ruqaa:wght@400;700&family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#FBF6EC;
+    --olive:#4B5F3A;
+    --olive-dark:#33421F;
+    --sage:#E7ECDD;
+    --tomato:#C1442D;
+    --tomato-dark:#9F3521;
+    --wheat:#D9A441;
+    --ink:#2B2620;
+    --ink-soft:#7A6E60;
+    --white:#FFFFFF;
+    --radius-s:10px;
+    --radius-m:16px;
+    --radius-l:24px;
+    --shadow:0 4px 16px rgba(43,38,32,0.10);
+    --font-display:'Aref Ruqaa', serif;
+    --font-body:'Cairo', system-ui, -apple-system, sans-serif;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    font-family:var(--font-body);
+    background:
+      radial-gradient(circle at 12% 6%, rgba(75,95,58,0.07) 0, transparent 45%),
+      radial-gradient(circle at 88% 94%, rgba(217,164,65,0.10) 0, transparent 45%),
+      var(--paper);
+    color:var(--ink);
+    min-height:100vh;
+    -webkit-font-smoothing:antialiased;
+  }
+  #app{
+    max-width:480px;margin:0 auto;min-height:100vh;
+    background:var(--paper);box-shadow:var(--shadow);
+    display:flex;flex-direction:column;padding-bottom:96px;
+  }
+  button{font-family:inherit;cursor:pointer;}
+  button:focus-visible, input:focus-visible{outline:3px solid var(--wheat);outline-offset:2px;}
+  h1,h2,h3{font-family:var(--font-display);margin:0;}
+
+  /* Header */
+  .app-header{
+    display:flex;align-items:center;justify-content:space-between;
+    gap:10px;padding:16px 16px 8px;
+  }
+  .brand{display:flex;align-items:center;gap:10px;min-width:0;}
+  .stamp-badge{
+    width:46px;height:46px;border-radius:50%;
+    display:flex;align-items:center;justify-content:center;
+    font-size:23px;background:var(--sage);
+    border:2px solid var(--olive);position:relative;flex-shrink:0;
+  }
+  .stamp-badge::after{
+    content:'';position:absolute;inset:5px;border-radius:50%;
+    border:1.5px dashed var(--wheat);
+  }
+  .app-header h1{font-size:1.35rem;color:var(--olive-dark);line-height:1.1;}
+  .tagline{margin:2px 0 0;font-size:0.72rem;color:var(--ink-soft);}
+  .header-actions{display:flex;align-items:center;gap:8px;flex-shrink:0;}
+  .identity-badge{
+    width:36px;height:36px;border-radius:50%;
+    background:var(--olive);color:var(--white);border:none;
+    font-size:0.9rem;font-weight:700;flex-shrink:0;
+  }
+  .cart-btn{
+    position:relative;width:44px;height:44px;border-radius:50%;
+    background:var(--white);border:1.5px solid #EADFC8;
+    font-size:1.3rem;display:flex;align-items:center;justify-content:center;
+    flex-shrink:0;
+  }
+  .cart-btn:active{background:var(--sage);}
+  .cart-count{
+    position:absolute;top:-4px;left:-4px;min-width:22px;height:22px;padding:0 5px;
+    background:var(--tomato);color:var(--white);border-radius:999px;
+    font-size:0.72rem;font-weight:800;
+    display:flex;align-items:center;justify-content:center;
+    border:2px solid var(--paper);
+  }
+  .cart-count[hidden]{display:none;}
+
+  /* Sync row */
+  .sync-row{
+    display:flex;align-items:center;gap:6px;
+    padding:0 16px 8px;font-size:0.7rem;color:var(--ink-soft);
+  }
+  .sync-dot{width:8px;height:8px;border-radius:50%;background:var(--olive);display:inline-block;flex-shrink:0;}
+  .sync-dot.warn{background:var(--wheat);}
+  .sync-dot.pulsing{animation:pulse 1.6s ease-in-out infinite;}
+  @keyframes pulse{
+    0%,100%{opacity:1;transform:scale(1);}
+    50%{opacity:0.45;transform:scale(1.25);}
+  }
+  @media (prefers-reduced-motion: reduce){ .sync-dot.pulsing{animation:none;} }
+
+  /* Search */
+  .search-form{display:flex;gap:8px;padding:0 16px 6px;}
+  #searchInput{
+    flex:1;border:1.5px solid #DCD3C1;background:var(--white);
+    border-radius:var(--radius-m);padding:12px 14px;font-size:0.95rem;
+    font-family:inherit;color:var(--ink);min-width:0;
+  }
+  #searchInput::placeholder{color:#B7AC98;}
+  .search-add-btn{
+    background:var(--olive);color:var(--white);border:none;
+    border-radius:var(--radius-m);padding:0 18px;font-weight:700;font-size:0.9rem;flex-shrink:0;
+  }
+  .search-add-btn:active{background:var(--olive-dark);}
+  .suggestions-box{
+    margin:0 16px 12px;background:var(--white);
+    border:1px solid #EADFC8;border-radius:var(--radius-m);
+    padding:8px;box-shadow:var(--shadow);
+  }
+  .suggestions-box[hidden]{display:none;}
+  .suggest-hint{font-size:0.75rem;color:var(--ink-soft);padding:4px 8px;}
+  .suggest-chip{
+    display:inline-flex;align-items:center;gap:6px;
+    background:var(--sage);border:none;border-radius:999px;
+    padding:8px 13px;margin:4px;font-size:0.85rem;color:var(--olive-dark);font-weight:600;
+  }
+  .suggest-chip:active{background:var(--wheat);color:var(--white);}
+  .add-custom-btn{
+    display:block;width:100%;text-align:center;background:none;
+    border:1.5px dashed #CDBF9E;border-radius:var(--radius-s);
+    padding:10px;margin-top:4px;font-size:0.82rem;color:var(--ink-soft);
+  }
+  .add-custom-btn:active{background:var(--sage);}
+
+  /* Browse */
+  .browse-section{padding:8px 16px 0;}
+  .browse-section h2{font-size:1.05rem;color:var(--olive-dark);margin-bottom:8px;}
+  .chips-row{display:flex;gap:8px;overflow-x:auto;padding-bottom:6px;scroll-snap-type:x proximity;}
+  .chip{
+    flex-shrink:0;display:flex;align-items:center;gap:6px;
+    background:var(--white);border:1.5px solid #EADFC8;border-radius:999px;
+    padding:9px 14px;font-size:0.82rem;font-weight:600;color:var(--ink);
+    scroll-snap-align:start;white-space:nowrap;
+  }
+  .chip.active{background:var(--olive);border-color:var(--olive);color:var(--white);}
+  .chip-emoji{font-size:1rem;}
+
+  .items-grid{
+    display:grid;grid-template-columns:repeat(auto-fill, minmax(80px,1fr));
+    gap:8px;margin-top:12px;
+  }
+  .tile{
+    position:relative;background:var(--white);border:1px solid #EFE7D6;
+    border-radius:var(--radius-s);padding:12px 4px;text-align:center;
+    transition:transform .12s ease, background .12s ease;
+  }
+  .tile:active{background:var(--sage);transform:scale(0.95);}
+  .tile.in-cart{border-color:var(--olive);background:#F4F7EE;}
+  .tile-emoji{font-size:1.55rem;display:block;}
+  .tile-name{font-size:0.68rem;display:block;margin-top:5px;color:var(--ink);line-height:1.2;}
+  .tile-badge{
+    position:absolute;top:-6px;left:-6px;background:var(--tomato);color:var(--white);
+    border-radius:999px;min-width:20px;height:20px;padding:0 4px;
+    font-size:0.68rem;font-weight:800;
+    display:flex;align-items:center;justify-content:center;border:2px solid var(--white);
+  }
+
+  /* Cart page */
+  .cart-header{display:flex;align-items:center;gap:10px;padding:0 16px 10px;}
+  .back-btn{
+    background:var(--white);border:1.5px solid #EADFC8;border-radius:999px;
+    padding:9px 15px;font-size:0.85rem;font-weight:700;color:var(--olive-dark);flex-shrink:0;
+  }
+  .back-btn:active{background:var(--sage);}
+  .cart-header h2{font-size:1.15rem;color:var(--olive-dark);}
+  .progress-row{display:flex;align-items:center;gap:8px;padding:0 16px 10px;}
+  .progress-text{font-size:0.74rem;color:var(--ink-soft);white-space:nowrap;}
+  .progress-track{flex:1;height:7px;background:var(--sage);border-radius:4px;overflow:hidden;}
+  .progress-fill{height:100%;background:var(--tomato);width:0%;transition:width .3s ease;}
+
+  .cart-body{padding:0 16px;}
+  .list-group{margin-bottom:12px;}
+  .list-group-title{font-size:0.78rem;font-weight:700;color:var(--olive-dark);margin:10px 2px 6px;}
+  .item-row{
+    display:flex;align-items:center;gap:8px;
+    background:var(--white);border:1px solid #EFE7D6;
+    border-radius:var(--radius-m);padding:10px;margin-bottom:7px;
+  }
+  .item-row.checked{opacity:0.5;}
+  .item-row.checked .row-name{text-decoration:line-through;}
+  .check-circle{
+    width:28px;height:28px;border-radius:50%;flex-shrink:0;
+    border:2px solid var(--olive);background:none;color:var(--white);
+    display:flex;align-items:center;justify-content:center;font-size:0.85rem;
+  }
+  .item-row.checked .check-circle{background:var(--olive);}
+  .row-emoji{font-size:1.35rem;flex-shrink:0;}
+  .row-main{flex:1;min-width:0;}
+  .row-name{font-size:0.92rem;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .row-meta{font-size:0.66rem;color:var(--ink-soft);margin-top:1px;}
+  .qty-stepper{display:flex;align-items:center;gap:7px;flex-shrink:0;}
+  .qty-stepper button{
+    width:28px;height:28px;border-radius:50%;border:1.5px solid #DCD3C1;
+    background:var(--paper);font-size:1rem;line-height:1;color:var(--ink);
+    display:flex;align-items:center;justify-content:center;
+  }
+  .qty-stepper button:active{background:var(--sage);}
+  .qty-num{font-size:0.9rem;font-weight:800;min-width:18px;text-align:center;}
+  .row-remove{
+    background:none;border:none;color:var(--tomato);font-size:1rem;
+    flex-shrink:0;padding:6px;
+  }
+
+  .list-actions{display:flex;gap:8px;margin:14px 0 4px;}
+  .ghost-btn{
+    flex:1;background:none;border:1.5px solid #DCD3C1;border-radius:var(--radius-s);
+    padding:11px;font-size:0.8rem;font-weight:600;color:var(--ink-soft);
+  }
+  .ghost-btn:active{background:var(--sage);}
+  .ghost-btn.danger{border-color:var(--tomato);color:var(--tomato-dark);}
+
+  .empty-state{text-align:center;padding:36px 12px;}
+  .empty-emoji{font-size:2.8rem;}
+  .empty-title{font-family:var(--font-display);font-size:1.2rem;color:var(--olive-dark);margin-top:8px;}
+  .empty-sub{font-size:0.82rem;color:var(--ink-soft);margin-top:6px;}
+  .empty-cta{
+    margin-top:16px;background:var(--olive);color:var(--white);border:none;
+    border-radius:var(--radius-m);padding:12px 22px;font-size:0.9rem;font-weight:700;
+  }
+
+  /* Floating cart bar */
+  .cart-bar{
+    position:fixed;bottom:20px;left:20px;
+    width:60px;height:60px;border-radius:50%;
+    background:var(--olive);color:var(--white);border:none;
+    display:flex;align-items:center;justify-content:center;
+    font-size:1.6rem;box-shadow:0 6px 16px rgba(43,38,32,0.30);
+    z-index:40;
+  }
+  .cart-bar[hidden]{display:none;}
+  .cart-bar:active{background:var(--olive-dark);transform:scale(0.94);}
+  .cart-bar-count{
+    position:absolute;top:-3px;left:-3px;
+    background:var(--tomato);color:var(--white);border-radius:999px;
+    min-width:24px;height:24px;padding:0 6px;font-size:0.78rem;font-weight:800;
+    display:flex;align-items:center;justify-content:center;border:2px solid var(--paper);
+  }
+
+  .app-footer{text-align:center;font-size:0.7rem;color:var(--ink-soft);padding:22px 16px 4px;}
+
+  /* Modal */
+  .modal{
+    position:fixed;inset:0;background:rgba(43,38,32,0.45);
+    display:flex;align-items:center;justify-content:center;padding:20px;z-index:60;
+  }
+  .modal[hidden]{display:none;}
+  .modal-card{
+    background:var(--paper);border-radius:var(--radius-l);padding:22px;
+    max-width:340px;width:100%;box-shadow:var(--shadow);text-align:center;
+  }
+  .modal-card h3{font-size:1.2rem;color:var(--olive-dark);margin-bottom:14px;}
+  .identity-choices{display:flex;gap:10px;justify-content:center;margin-bottom:12px;}
+  .identity-choices button{
+    flex:1;background:var(--olive);color:var(--white);border:none;
+    border-radius:var(--radius-m);padding:13px 8px;font-size:0.95rem;font-weight:700;
+  }
+  #customNameForm{display:flex;gap:6px;}
+  #customNameInput{
+    flex:1;border:1.5px solid #DCD3C1;border-radius:var(--radius-s);
+    padding:10px;font-family:inherit;font-size:0.85rem;min-width:0;
+  }
+  #customNameForm button{
+    background:var(--sage);border:none;border-radius:var(--radius-s);
+    padding:0 15px;font-weight:700;color:var(--olive-dark);flex-shrink:0;
+  }
+
+  /* Toast */
+  .toast{
+    position:fixed;bottom:86px;left:50%;transform:translateX(-50%) translateY(16px);
+    background:var(--ink);color:var(--white);padding:11px 20px;border-radius:999px;
+    font-size:0.85rem;font-weight:600;opacity:0;pointer-events:none;
+    transition:opacity .2s ease, transform .2s ease;
+    z-index:70;max-width:90%;text-align:center;
+  }
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+  @media (prefers-reduced-motion: reduce){ .toast{transition:opacity .01s;} }
+</style>
+</head>
+<body>
+<div id="app">
+  <header class="app-header">
+    <div class="brand">
+      <div class="stamp-badge">🧺</div>
+      <div>
+        <h1>سلة البيت</h1>
+        <p class="tagline">قائمة تسوّق لمحمود ورنا 🧡</p>
+      </div>
+    </div>
+    <div class="header-actions">
+      <button id="cartBtn" class="cart-btn" type="button" aria-label="فتح السلة">
+        🧺<span id="cartCount" class="cart-count" hidden>0</span>
+      </button>
+      <button id="identityBadge" class="identity-badge" type="button" aria-label="تغيير الهوية">؟</button>
+    </div>
+  </header>
+
+  <div class="sync-row">
+    <span id="syncDot" class="sync-dot pulsing"></span>
+    <span id="syncText">جاري التزامن...</span>
+  </div>
+
+  <!-- ============ BROWSE VIEW ============ -->
+  <div id="browseView">
+    <form id="searchForm" class="search-form" autocomplete="off">
+      <input id="searchInput" type="text" placeholder="اكتب اسم الغرض، مثلاً بندورة..." autocomplete="off" />
+      <button type="submit" class="search-add-btn">إضافة</button>
+    </form>
+    <div id="suggestionsBox" class="suggestions-box" hidden></div>
+
+    <section class="browse-section">
+      <h2>🔍 اختاروا حسب الفئة</h2>
+      <div id="chipsRow" class="chips-row"></div>
+      <div id="itemsGrid" class="items-grid"></div>
+    </section>
+  </div>
+
+  <!-- ============ CART VIEW ============ -->
+  <div id="cartView" hidden>
+    <div class="cart-header">
+      <button id="backBtn" class="back-btn" type="button">→ رجوع</button>
+      <h2>🧺 قائمتنا</h2>
+    </div>
+    <div id="progressRow" class="progress-row">
+      <span id="progressText" class="progress-text"></span>
+      <div class="progress-track"><div id="progressFill" class="progress-fill"></div></div>
+    </div>
+    <div class="cart-body">
+      <div id="listContainer"></div>
+      <div id="listActions" class="list-actions">
+        <button id="clearCheckedBtn" class="ghost-btn" type="button">مسح المشترى ✔️</button>
+        <button id="clearAllBtn" class="ghost-btn danger" type="button">تفريغ السلة 🗑️</button>
+      </div>
+    </div>
+  </div>
+
+  <footer class="app-footer">صُنع خصيصًا لمحمود ورنا 🧡 — سلة البيت</footer>
+</div>
+
+<button id="cartBar" class="cart-bar" type="button" aria-label="عرض السلة" hidden>
+  🧺<span id="cartBarCount" class="cart-bar-count">0</span>
+</button>
+
+<div id="identityModal" class="modal" hidden>
+  <div class="modal-card">
+    <h3>مين معك اليوم؟ 👋</h3>
+    <div class="identity-choices">
+      <button type="button" data-name="محمود">👨 محمود</button>
+      <button type="button" data-name="رنا">👩 رنا</button>
+    </div>
+    <form id="customNameForm">
+      <input id="customNameInput" type="text" placeholder="اسم تاني..." />
+      <button type="submit">تم</button>
+    </form>
+  </div>
+</div>
+</div>
+
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+<!-- Firebase (Realtime Database) — optional. Works fine without it. -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+
+
+<script>
+(function(){
+  "use strict";
+
+  // ==================================================================
+  // FIREBASE SETUP — paste your own project's config below.
+  // See README.md for step-by-step instructions (free, ~5 minutes).
+  // Until you paste real values, the app works normally and syncs
+  // through Claude while you're both inside the Claude app.
+  // ==================================================================
+  var FIREBASE_CONFIG = {
+    apiKey: "AIzaSyDeLuKQFc8mzT82AHjVDCB1Lo6z3hkcGRE",
+    authDomain: "household-basket.firebaseapp.com",
+    databaseURL: "https://household-basket-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId: "household-basket",
+    storageBucket: "household-basket.firebasestorage.app",
+    messagingSenderId: "812160657022",
+    appId: "1:812160657022:web:9920217f0c53d7fc4f9a2f"
+  };
+
+  function isFirebaseConfigured(){
+    return !!(FIREBASE_CONFIG.apiKey &&
+              FIREBASE_CONFIG.apiKey.indexOf('YOUR_') !== 0 &&
+              FIREBASE_CONFIG.databaseURL &&
+              FIREBASE_CONFIG.databaseURL.indexOf('YOUR_') === -1);
+  }
+
+  var fbListRef = null;
+  if(isFirebaseConfigured() && typeof firebase !== 'undefined'){
+    try{
+      firebase.initializeApp(FIREBASE_CONFIG);
+      fbListRef = firebase.database().ref('household-basket/list');
+    }catch(e){ fbListRef = null; }
+  }
+
+  // ---------------- Data: catalog ----------------
+  const CATALOG = [
+    {id:'produce', name:'خضار وفواكه', emoji:'🥬', items:[
+      {id:'tomato', name:'طماطم', emoji:'🍅', aliases:['بندورة','עגבניה']},
+      {id:'cucumber', name:'خيار', emoji:'🥒', aliases:['מלפפון']},
+      {id:'potato', name:'بطاطا', emoji:'🥔', aliases:['بطاطس','תפוח אדמה']},
+      {id:'onion', name:'بصل', emoji:'🧅', aliases:['בצל']},
+      {id:'scallion', name:'بصل أخضر', emoji:'🌱', aliases:['بصل اخضر','בצל ירוק']},
+      {id:'leek', name:'كراث', emoji:'🌱', aliases:['כרישה']},
+      {id:'garlic', name:'ثوم', emoji:'🧄', aliases:['שום']},
+      {id:'carrot', name:'جزر', emoji:'🥕', aliases:['גזר']},
+      {id:'pepper', name:'فلفل حلو', emoji:'🫑', aliases:['فليفلة','فلفل ألوان','פלפל']},
+      {id:'hotpepper', name:'فلفل حار', emoji:'🌶️', aliases:['פלפל חריף']},
+      {id:'eggplant', name:'باذنجان', emoji:'🍆', aliases:['بيتنجان','חציל']},
+      {id:'zucchini', name:'كوسا', emoji:'🥒', aliases:['كوسة','קישוא']},
+      {id:'lettuce', name:'خس', emoji:'🥬', aliases:['חסה']},
+      {id:'arugula', name:'جرجير', emoji:'🌿', aliases:['רוקט']},
+      {id:'spinach', name:'سبانخ', emoji:'🍃', aliases:['תרד']},
+      {id:'parsley', name:'بقدونس', emoji:'🌿', aliases:['פטרוזיליה']},
+      {id:'mint', name:'نعناع', emoji:'🌿', aliases:['נענע']},
+      {id:'cilantro', name:'كزبرة', emoji:'🌿', aliases:['كسبرة','כוסברה']},
+      {id:'celery', name:'كرفس', emoji:'🌿', aliases:['סלרי']},
+      {id:'lemon', name:'ليمون', emoji:'🍋', aliases:['לימון']},
+      {id:'lime', name:'ليمون أخضر', emoji:'🍈', aliases:['لايم','ליים']},
+      {id:'apple', name:'تفاح', emoji:'🍎', aliases:['תפוח']},
+      {id:'banana', name:'موز', emoji:'🍌', aliases:['בננה']},
+      {id:'orange', name:'برتقال', emoji:'🍊', aliases:['תפוז']},
+      {id:'mandarin', name:'يوسفي', emoji:'🍊', aliases:['مندلينا','קלמנטינה']},
+      {id:'grapefruit', name:'جريب فروت', emoji:'🍊', aliases:['אשכולית']},
+      {id:'grape', name:'عنب', emoji:'🍇', aliases:['ענבים']},
+      {id:'watermelon', name:'بطيخ', emoji:'🍉', aliases:['אבטיח']},
+      {id:'melon', name:'شمام', emoji:'🍈', aliases:['מלון']},
+      {id:'strawberry', name:'فراولة', emoji:'🍓', aliases:['תות']},
+      {id:'cherry', name:'كرز', emoji:'🍒', aliases:['דובדבן']},
+      {id:'blueberry', name:'توت أزرق', emoji:'🫐', aliases:['אוכמניות']},
+      {id:'avocado', name:'أفوكادو', emoji:'🥑', aliases:['אבוקדו']},
+      {id:'mango', name:'مانجو', emoji:'🥭', aliases:['מנגו']},
+      {id:'pear', name:'كمثرى', emoji:'🍐', aliases:['إجاص','אגס']},
+      {id:'peach', name:'خوخ', emoji:'🍑', aliases:['אפרסק']},
+      {id:'apricot', name:'مشمش', emoji:'🍑', aliases:['משמש']},
+      {id:'kiwi', name:'كيوي', emoji:'🥝', aliases:['קיווי']},
+      {id:'pineapple', name:'أناناس', emoji:'🍍', aliases:['אננס']},
+      {id:'guava', name:'جوافة', emoji:'🍈', aliases:['גויאבה']},
+      {id:'coconut', name:'جوز هند', emoji:'🥥', aliases:['קוקוס']},
+      {id:'ginger', name:'زنجبيل', emoji:'🫚', aliases:["ג'ינג'ר"]},
+      {id:'sweetpotato', name:'بطاطا حلوة', emoji:'🍠', aliases:['בטטה']},
+      {id:'cabbage', name:'ملفوف', emoji:'🥬', aliases:['كرنب','כרוב']},
+      {id:'cauliflower', name:'قرنبيط', emoji:'🥦', aliases:['כרובית']},
+      {id:'broccoli', name:'بروكلي', emoji:'🥦', aliases:['ברוקולי']},
+      {id:'mushroom', name:'فطر', emoji:'🍄', aliases:['פטריות']},
+      {id:'corn', name:'ذرة', emoji:'🌽', aliases:['תירס']},
+      {id:'radish', name:'فجل', emoji:'🌱', aliases:['צנון']},
+      {id:'beet', name:'شمندر', emoji:'🔴', aliases:['סלק']},
+      {id:'turnip', name:'لفت', emoji:'🥔', aliases:['לפת']},
+      {id:'butternut', name:'قرع عسلي', emoji:'🎃', aliases:['דלעת']},
+      {id:'pumpkin', name:'قرع', emoji:'🎃', aliases:['يقطين','דלעת']},
+      {id:'asparagus', name:'هليون', emoji:'🌱', aliases:['אספרגוס']},
+      {id:'artichoke', name:'أرضي شوكي', emoji:'🌿', aliases:['ארטישוק']},
+      {id:'okra', name:'بامية', emoji:'🟢', aliases:['במיה']},
+      {id:'fava', name:'فول أخضر', emoji:'🫘', aliases:['פול']},
+      {id:'freshpeas', name:'بازيلاء طازجة', emoji:'🫛', aliases:['אפונה']},
+      {id:'greenbeans', name:'فاصولياء خضراء', emoji:'🫘', aliases:['שעועית ירוקה']},
+      {id:'pomegranate', name:'رمان', emoji:'🍎', aliases:['רימון']},
+      {id:'dates', name:'تمر', emoji:'🌴', aliases:['תמרים']},
+      {id:'figs', name:'تين', emoji:'🟣', aliases:['תאנים']}
+    ]},
+    {id:'dairy', name:'ألبان وبيض ومبردات', emoji:'🧀', items:[
+      {id:'milk', name:'حليب', emoji:'🥛', aliases:['חלב']},
+      {id:'soymilk', name:'حليب صويا', emoji:'🥛', aliases:['חלב סויה']},
+      {id:'almondmilk', name:'حليب لوز', emoji:'🥛', aliases:['חלב שקדים']},
+      {id:'eggs', name:'بيض', emoji:'🥚', aliases:['ביצים']},
+      {id:'whitecheese', name:'جبنة بيضاء', emoji:'🧀', aliases:['גבינה לבנה']},
+      {id:'yellowcheese', name:'جبنة صفراء', emoji:'🧀', aliases:['גבינה צהובה']},
+      {id:'halloumi', name:'حلوم', emoji:'🧀', aliases:['חלומי']},
+      {id:'mozzarella', name:'موزاريلا', emoji:'🧀', aliases:['מוצרלה']},
+      {id:'parmesan', name:'بارميزان', emoji:'🧀', aliases:['פרמזן']},
+      {id:'cottagecheese', name:'جبنة قريش', emoji:'🧀', aliases:["קוטג'"]},
+      {id:'creamcheese', name:'جبنة كريمة', emoji:'🧀', aliases:['גבינת שמנת']},
+      {id:'yogurt', name:'لبن زبادي', emoji:'🥣', aliases:['لبن','יוגורט']},
+      {id:'greekyogurt', name:'زبادي يوناني', emoji:'🥣', aliases:['יוגורט יווני']},
+      {id:'labneh', name:'لبنة', emoji:'🥣', aliases:['לבנה']},
+      {id:'butter', name:'زبدة', emoji:'🧈', aliases:['חמאה']},
+      {id:'margarine', name:'مارجرين', emoji:'🧈', aliases:['מרגרינה']},
+      {id:'cream', name:'قشطة', emoji:'🥛', aliases:['שמנת']},
+      {id:'cookingcream', name:'كريمة طبخ', emoji:'🥛', aliases:['שמנת לבישול']},
+      {id:'whippedcream', name:'كريمة مخفوقة', emoji:'🍦', aliases:['קצפת']},
+      {id:'sourcream', name:'كريمة حامضة', emoji:'🥣', aliases:['سميتانة','שמנת חמוצה']},
+      {id:'hummus', name:'حمص (معجون)', emoji:'🥣', aliases:['חומוס']},
+      {id:'babaganoush', name:'متبل', emoji:'🍆', aliases:['بابا غنوج','בבא גנוש']},
+      {id:'olivesfresh', name:'زيتون', emoji:'🫒', aliases:['זיתים']},
+      {id:'pickles', name:'مخلل', emoji:'🥒', aliases:['חמוצים']},
+      {id:'tofu', name:'توفو', emoji:'⬜', aliases:['טופו']}
+    ]},
+    {id:'bakery', name:'خبز ومخبوزات', emoji:'🥖', items:[
+      {id:'pita', name:'خبز عربي', emoji:'🫓', aliases:['خبز','كماج','פיתה']},
+      {id:'wholewheatbread', name:'خبز أسمر', emoji:'🍞', aliases:['خبز كامل','לחם מלא']},
+      {id:'baguette', name:'باغيت', emoji:'🥖', aliases:['באגט']},
+      {id:'slicedbread', name:'خبز توست', emoji:'🍞', aliases:['לחם קצוץ']},
+      {id:'buns', name:'خبز برجر', emoji:'🍞', aliases:['كيزر','לחמניות']},
+      {id:'bagel', name:'بيغل', emoji:'🥯', aliases:["בייגל"]},
+      {id:'croissant', name:'كرواسون', emoji:'🥐', aliases:['קרואסון']},
+      {id:'cake', name:'كيك', emoji:'🍰', aliases:['עוגה']},
+      {id:'pastry', name:'معجنات', emoji:'🥐', aliases:['מאפה']},
+      {id:'lafa', name:'لفة', emoji:'🫓', aliases:['לאפה']},
+      {id:'lavash', name:'لواش', emoji:'🫓', aliases:['לאבש']},
+      {id:'kaak', name:'كعك', emoji:'🥯', aliases:["כעכ"]},
+      {id:'donut', name:'دونات', emoji:'🍩', aliases:['סופגניה']},
+      {id:'muffin', name:'مافن', emoji:'🧁', aliases:['מאפין']},
+      {id:'rusks', name:'بقسماط', emoji:'🍪', aliases:['צנימים']}
+    ]},
+    {id:'meat', name:'لحوم ودواجن وأسماك', emoji:'🍗', items:[
+      {id:'chickenbreast', name:'صدور دجاج', emoji:'🍗', aliases:['חזה עוף']},
+      {id:'chickenthighs', name:'أفخاذ دجاج', emoji:'🍗', aliases:['שוקי עוף']},
+      {id:'chickenwings', name:'أجنحة دجاج', emoji:'🍗', aliases:['כנפיים']},
+      {id:'chickenliver', name:'كبدة دجاج', emoji:'🍗', aliases:['כבד עוף']},
+      {id:'groundchicken', name:'دجاج مفروم', emoji:'🍗', aliases:['עוף טחון']},
+      {id:'wholechicken', name:'دجاجة كاملة', emoji:'🍗', aliases:['فروج','עוף שלם']},
+      {id:'schnitzel', name:'شنيتسل', emoji:'🍗', aliases:['שניצל']},
+      {id:'nuggets', name:'ناغتس دجاج', emoji:'🍗', aliases:['נאגטס']},
+      {id:'turkey', name:'ديك رومي', emoji:'🦃', aliases:['הודו']},
+      {id:'turkeythighs', name:'أفخاذ ديك رومي', emoji:'🦃', aliases:['שוקי הודו']},
+      {id:'groundturkey', name:'لحمة ديك رومي مفرومة', emoji:'🦃', aliases:['הודו טחון']},
+      {id:'groundbeef', name:'لحمة مفرومة', emoji:'🥩', aliases:['בשר טחון']},
+      {id:'steak', name:'ستيك', emoji:'🥩', aliases:['סטייק']},
+      {id:'stewbeef', name:'لحم بقر للطبخ', emoji:'🥩', aliases:['בשר לתבשיל']},
+      {id:'beefliver', name:'كبدة بقر', emoji:'🥩', aliases:['כבד בקר']},
+      {id:'veal', name:'لحم عجل', emoji:'🥩', aliases:['עגל']},
+      {id:'beefpatty', name:'برجر لحم', emoji:'🍔', aliases:['המבורגר']},
+      {id:'lamb', name:'لحم غنم', emoji:'🥩', aliases:['خروف','כבש']},
+      {id:'lambchops', name:'ريش غنم', emoji:'🍖', aliases:['צלעות כבש']},
+      {id:'kebab', name:'كباب', emoji:'🍢', aliases:['קבב']},
+      {id:'shawarma', name:'شاورما', emoji:'🌯', aliases:['שווארמה']},
+      {id:'sausage', name:'نقانق', emoji:'🌭', aliases:['سجق','נקניקיות']},
+      {id:'chickensausage', name:'نقانق دجاج', emoji:'🌭', aliases:['נקניקיות עוף']},
+      {id:'mortadella', name:'مرتديلا', emoji:'🥓', aliases:['מורטדלה']},
+      {id:'salami', name:'سلامي', emoji:'🥓', aliases:['סלמי']},
+      {id:'pastrami', name:'باسطرمة', emoji:'🥓', aliases:['פסטרמה']},
+      {id:'luncheonmeat', name:'لانشون', emoji:'🥓', aliases:['נקניק']},
+      {id:'fish', name:'سمك', emoji:'🐟', aliases:['דג']},
+      {id:'salmon', name:'سلمون', emoji:'🐟', aliases:['סלמון']},
+      {id:'tuna', name:'تونة', emoji:'🐟', aliases:['טונה']},
+      {id:'solefish', name:'سمك موسى', emoji:'🐟', aliases:['משה רבנו']},
+      {id:'denisfish', name:'سمك دنيس', emoji:'🐟', aliases:['דניס']},
+      {id:'sardines', name:'سردين', emoji:'🐟', aliases:['סרדינים']},
+      {id:'shrimp', name:'جمبري', emoji:'🍤', aliases:['قريدس','שרימפס']},
+      {id:'calamari', name:'كاليماري', emoji:'🦑', aliases:['حبار','קלמארי']}
+    ]},
+    {id:'frozen', name:'مجمدات', emoji:'🧊', items:[
+      {id:'frozenveg', name:'خضار مجمدة', emoji:'🧊', aliases:['ירקות קפואים']},
+      {id:'frozenspinach', name:'سبانخ مجمدة', emoji:'🧊', aliases:['תרד קפוא']},
+      {id:'frozenpeas', name:'بازيلاء مجمدة', emoji:'🫛', aliases:['אפונה קפואה']},
+      {id:'frozenfries', name:'بطاطا مقلية مجمدة', emoji:'🍟', aliases:["צ'יפס קפוא"]},
+      {id:'icecream', name:'آيس كريم', emoji:'🍨', aliases:['بوظة','גלידה']},
+      {id:'frozenpizza', name:'بيتزا مجمدة', emoji:'🍕', aliases:['פיצה קפואה']},
+      {id:'frozenfish', name:'سمك مجمد', emoji:'🐟', aliases:['דג קפוא']},
+      {id:'frozendough', name:'عجين مجمد', emoji:'🥟', aliases:['בצק קפוא']},
+      {id:'frozenburger', name:'برجر مجمد', emoji:'🍔', aliases:['המבורגר קפוא']},
+      {id:'nuggetsfrozen', name:'ناغتس مجمد', emoji:'🍗', aliases:['נאגטס קפוא']},
+      {id:'waffles', name:'وافل', emoji:'🧇', aliases:['וופלים']},
+      {id:'frozenfruit', name:'فواكه مجمدة', emoji:'🍓', aliases:['פירות קפואים']}
+    ]},
+    {id:'pantry', name:'معلبات وحبوب وجاف', emoji:'🌾', items:[
+      {id:'rice', name:'أرز', emoji:'🍚', aliases:['אורז']},
+      {id:'bulgur', name:'برغل', emoji:'🌾', aliases:['בורגול']},
+      {id:'freekeh', name:'فريكة', emoji:'🌾', aliases:['פריכה']},
+      {id:'couscous', name:'كسكس', emoji:'🌾', aliases:['קוסקוס']},
+      {id:'vermicelli', name:'شعيرية', emoji:'🍜', aliases:['אטריות']},
+      {id:'pasta', name:'معكرونة', emoji:'🍝', aliases:['باستا','פסטה']},
+      {id:'pastasauce', name:'صلصة باستا', emoji:'🥫', aliases:['רוטב פסטה']},
+      {id:'lentils', name:'عدس', emoji:'🟤', aliases:['עדשים']},
+      {id:'redlentils', name:'عدس أحمر', emoji:'🟠', aliases:['עדשים אדומות']},
+      {id:'chickpeasdry', name:'حمص جاف', emoji:'🟡', aliases:['חומוס יבש']},
+      {id:'favacanned', name:'فول مدمس', emoji:'🥫', aliases:['פול']},
+      {id:'cannedtuna', name:'تونة معلبة', emoji:'🥫', aliases:['טונה בשימורים']},
+      {id:'cannedcorn', name:'ذرة معلبة', emoji:'🥫', aliases:['תירס משומר']},
+      {id:'tomatopaste', name:'معجون طماطم', emoji:'🥫', aliases:['رب بندورة','רסק עגבניות']},
+      {id:'cannedbeans', name:'فاصولياء معلبة', emoji:'🥫', aliases:['שעועית משומרת']},
+      {id:'flour', name:'طحين', emoji:'🌾', aliases:['دقيق','קמח']},
+      {id:'sugar', name:'سكر', emoji:'🧂', aliases:['סוכר']},
+      {id:'oats', name:'شوفان', emoji:'🥣', aliases:['שיבולת שועל']},
+      {id:'cereal', name:'كورن فليكس', emoji:'🥣', aliases:['حبوب فطور','דגני בוקר']},
+      {id:'oliveoil', name:'زيت زيتون', emoji:'🫒', aliases:['שמן זית']},
+      {id:'sunfloweroil', name:'زيت دوار الشمس', emoji:'🛢️', aliases:['שמן חמניות']},
+      {id:'vinegar', name:'خل', emoji:'🍶', aliases:['חומץ']},
+      {id:'honey', name:'عسل', emoji:'🍯', aliases:['דבש']},
+      {id:'tahini', name:'طحينة', emoji:'🥣', aliases:['טחינה']},
+      {id:'yeast', name:'خميرة', emoji:'🍞', aliases:['שמרים']},
+      {id:'bakingpowder', name:'بيكنغ باودر', emoji:'🧂', aliases:['אבקת אפייה']},
+      {id:'cornstarch', name:'نشا', emoji:'🧂', aliases:['עמילן תירס']},
+      {id:'vanilla', name:'فانيلا', emoji:'🧂', aliases:['וניל']},
+      {id:'cocoa', name:'كاكاو', emoji:'🍫', aliases:['קקאו']}
+    ]},
+    {id:'spices', name:'بهارات وصلصات', emoji:'🧂', items:[
+      {id:'blackpepper', name:'فلفل أسود', emoji:'🧂', aliases:['פלפל שחור']},
+      {id:'whitepepper', name:'فلفل أبيض', emoji:'🧂', aliases:['פלפל לבן']},
+      {id:'cumin', name:'كمون', emoji:'🧂', aliases:['כמון']},
+      {id:'sumac', name:'سماق', emoji:'🧂', aliases:['סומק']},
+      {id:'zaatar', name:'زعتر', emoji:'🌿', aliases:['זעתר']},
+      {id:'cinnamon', name:'قرفة', emoji:'🧂', aliases:['קינמון']},
+      {id:'cardamom', name:'هيل', emoji:'🧂', aliases:['הל']},
+      {id:'cloves', name:'قرنفل', emoji:'🧂', aliases:['ציפורן']},
+      {id:'anise', name:'يانسون', emoji:'🧂', aliases:['אניס']},
+      {id:'nigella', name:'حبة سوداء', emoji:'🧂', aliases:['קצח']},
+      {id:'allspice', name:'بهار حلو', emoji:'🧂', aliases:['פימנטו']},
+      {id:'turmeric', name:'كركم', emoji:'🧂', aliases:['כורכום']},
+      {id:'paprika', name:'بابريكا', emoji:'🧂', aliases:['פפריקה']},
+      {id:'baharat', name:'بهارات مشكلة', emoji:'🧂', aliases:['בהרט']},
+      {id:'salt', name:'ملح', emoji:'🧂', aliases:['מלח']},
+      {id:'ketchup', name:'كاتشب', emoji:'🍅', aliases:['קטשופ']},
+      {id:'mayo', name:'مايونيز', emoji:'🥣', aliases:['מיונז']},
+      {id:'mustard', name:'خردل', emoji:'🥣', aliases:['חרדל']},
+      {id:'soysauce', name:'صلصة الصويا', emoji:'🥣', aliases:['רוטב סויה']},
+      {id:'hotsauce', name:'صلصة حارة', emoji:'🌶️', aliases:['רוטב חריף']},
+      {id:'bouillon', name:'مرقة مكعبات', emoji:'🧂', aliases:['كنور','אבקת מרק']}
+    ]},
+    {id:'drinks', name:'مشروبات', emoji:'🥤', items:[
+      {id:'water', name:'مياه', emoji:'💧', aliases:['מים']},
+      {id:'sparklingwater', name:'مياه غازية', emoji:'🫧', aliases:['מים מוגזים']},
+      {id:'juice', name:'عصير', emoji:'🧃', aliases:['מיץ']},
+      {id:'soda', name:'كولا', emoji:'🥤', aliases:['صودا','קולה']},
+      {id:'coffee', name:'قهوة', emoji:'☕', aliases:['קפה']},
+      {id:'turkishcoffee', name:'قهوة تركية', emoji:'☕', aliases:['קפה טורקי']},
+      {id:'instantcoffee', name:'نسكافيه', emoji:'☕', aliases:['נמס']},
+      {id:'tea', name:'شاي', emoji:'🍵', aliases:['תה']},
+      {id:'greentea', name:'شاي أخضر', emoji:'🍵', aliases:['תה ירוק']},
+      {id:'energydrink', name:'مشروب طاقة', emoji:'⚡', aliases:['משקה אנרגיה']},
+      {id:'sportsdrink', name:'مشروب رياضي', emoji:'🥤', aliases:['איזוטוני']},
+      {id:'maltdrink', name:'مشروب مالت', emoji:'🍺', aliases:['מאלט']},
+      {id:'beer', name:'بيرة', emoji:'🍺', aliases:['בירה']},
+      {id:'wine', name:'نبيذ', emoji:'🍷', aliases:['יין']},
+      {id:'lemonade', name:'ليموناضة', emoji:'🍋', aliases:['לימונדה']},
+      {id:'chocmilk', name:'شوكولاطة حليب', emoji:'🍫', aliases:['שוקו']}
+    ]},
+    {id:'snacks', name:'وجبات خفيفة وحلويات', emoji:'🍫', items:[
+      {id:'chips', name:'تشيبس', emoji:'🍟', aliases:['شيبس',"צ'יפס"]},
+      {id:'cornchips', name:'رقائق ذرة', emoji:'🌽', aliases:["צ'יטוס"]},
+      {id:'crackers', name:'بسكويت مالح', emoji:'🍘', aliases:['קרקרים']},
+      {id:'chocolate', name:'شوكولاطة', emoji:'🍫', aliases:['שוקולד']},
+      {id:'cookies', name:'بسكويت', emoji:'🍪', aliases:['עוגיות']},
+      {id:'wafer', name:'ويفر', emoji:'🍫', aliases:['וופל']},
+      {id:'nuts', name:'مكسرات', emoji:'🥜', aliases:['אגוזים']},
+      {id:'seeds', name:'بذور', emoji:'🌻', aliases:['لب','גרעינים']},
+      {id:'raisins', name:'زبيب', emoji:'🍇', aliases:['צימוקים']},
+      {id:'driedfruit', name:'فواكه مجففة', emoji:'🍇', aliases:['פירות יבשים']},
+      {id:'candy', name:'حلوى', emoji:'🍬', aliases:['ממתקים']},
+      {id:'gum', name:'علكة', emoji:'🍬', aliases:['מסטיק']},
+      {id:'marshmallow', name:'مارشميلو', emoji:'🍡', aliases:['מרשמלו']},
+      {id:'popcorn', name:'فشار', emoji:'🍿', aliases:['פופקורן']},
+      {id:'halva', name:'حلاوة', emoji:'🍯', aliases:['חלווה']},
+      {id:'granolabar', name:'غرانولا', emoji:'🍫', aliases:['גרנולה']},
+      {id:'proteinbar', name:'بروتين بار', emoji:'🍫', aliases:['חטיף חלבון']}
+    ]},
+    {id:'cleaning', name:'منظفات ومستلزمات المنزل', emoji:'🧽', items:[
+      {id:'dishsoap', name:'صابون صحون', emoji:'🧴', aliases:['סבון כלים']},
+      {id:'handsoap', name:'صابون يدين سائل', emoji:'🧴', aliases:['סבון ידיים נוזלי']},
+      {id:'laundrydetergent', name:'مسحوق غسيل', emoji:'🧴', aliases:['بودرة غسيل','אבקת כביסה']},
+      {id:'softener', name:'منعم ملابس', emoji:'🧴', aliases:['מרכך כביסה']},
+      {id:'bleach', name:'كلور', emoji:'🧴', aliases:['אקונומיקה']},
+      {id:'allpurposecleaner', name:'منظف متعدد الاستخدامات', emoji:'🧴', aliases:['מנקה רב שימושי']},
+      {id:'airfreshener', name:'معطر جو', emoji:'🌸', aliases:['מרענן אוויר']},
+      {id:'insecticide', name:'مبيد حشرات', emoji:'🐜', aliases:['רסס נגד חרקים']},
+      {id:'sponge', name:'إسفنجة', emoji:'🧽', aliases:['ספוג']},
+      {id:'gloves', name:'قفازات مطبخ', emoji:'🧤', aliases:['כפפות ניקיון']},
+      {id:'trashbags', name:'أكياس زبالة', emoji:'🗑️', aliases:['שקיות זבל']},
+      {id:'foil', name:'ورق ألمنيوم', emoji:'🧻', aliases:['נייר כסף']},
+      {id:'plasticwrap', name:'نايلون تغليف', emoji:'🧻', aliases:['ניילון נצמד']},
+      {id:'papertowels', name:'مناديل مطبخ', emoji:'🧻', aliases:['מגבות נייר']},
+      {id:'toiletpaper', name:'ورق تواليت', emoji:'🧻', aliases:['נייר טואלט']},
+      {id:'tissues', name:'مناديل ورقية', emoji:'🧻', aliases:['טישו']}
+    ]},
+    {id:'personal', name:'عناية شخصية وأطفال', emoji:'🧴', items:[
+      {id:'shampoo', name:'شامبو', emoji:'🧴', aliases:['שמפו']},
+      {id:'soap', name:'صابون', emoji:'🧼', aliases:['סבון']},
+      {id:'bodywash', name:'غسول جسم', emoji:'🧴', aliases:['סבון גוף']},
+      {id:'toothpaste', name:'معجون أسنان', emoji:'🪥', aliases:['משחת שיניים']},
+      {id:'toothbrush', name:'فرشاة أسنان', emoji:'🪥', aliases:['מברשת שיניים']},
+      {id:'deodorant', name:'مزيل عرق', emoji:'🧴', aliases:['דאודורנט']},
+      {id:'sunscreen', name:'واقي شمس', emoji:'🧴', aliases:['קרם הגנה']},
+      {id:'bandaids', name:'لصقات جروح', emoji:'🩹', aliases:['פלסטרים']},
+      {id:'diapers', name:'حفاضات', emoji:'👶', aliases:['חיתולים']},
+      {id:'wipes', name:'مناديل مبللة', emoji:'👶', aliases:['מגבונים']},
+      {id:'babyformula', name:'حليب أطفال', emoji:'🍼', aliases:['תרכובת תינוקות']},
+      {id:'pads', name:'فوط صحية', emoji:'🩹', aliases:['תחבושות']},
+      {id:'razors', name:'شفرات حلاقة', emoji:'🪒', aliases:['סכיני גילוח']},
+      {id:'handcream', name:'كريم يدين', emoji:'🧴', aliases:['קרם ידיים']}
+    ]}
+  ];
+
+  var CATEGORY_ORDER = CATALOG.map(function(c){ return c.id; });
+  var ALL_ITEMS = [];
+  CATALOG.forEach(function(cat){
+    cat.items.forEach(function(it){
+      ALL_ITEMS.push(Object.assign({}, it, {catId: cat.id}));
+    });
+  });
+  var ITEM_BY_ID = {};
+  ALL_ITEMS.forEach(function(it){ ITEM_BY_ID[it.id] = it; });
+
+  // ---------------- Arabic/Hebrew normalize + fuzzy match ----------------
+  function normalizeAr(s){
+    return (s || '')
+      .trim()
+      .toLowerCase()
+      .replace(/[\u064B-\u065F\u0670\u0640]/g, '')
+      .replace(/[إأآا]/g, 'ا')
+      .replace(/ى/g, 'ي')
+      .replace(/ة/g, 'ه')
+      .replace(/[ؤئ]/g, 'و')
+      .replace(/[\u0591-\u05C7]/g, '')
+      .replace(/ך/g, 'כ')
+      .replace(/ם/g, 'מ')
+      .replace(/ן/g, 'נ')
+      .replace(/ף/g, 'פ')
+      .replace(/ץ/g, 'צ');
+  }
+
+  function levenshtein(a, b){
+    var m = a.length, n = b.length;
+    if(m === 0) return n;
+    if(n === 0) return m;
+    var dp = [];
+    for(var i=0; i<=m; i++){ dp.push(new Array(n+1).fill(0)); dp[i][0]=i; }
+    for(var j=0; j<=n; j++) dp[0][j]=j;
+    for(var i2=1; i2<=m; i2++){
+      for(var j2=1; j2<=n; j2++){
+        dp[i2][j2] = a[i2-1]===b[j2-1] ? dp[i2-1][j2-1]
+          : 1 + Math.min(dp[i2-1][j2-1], dp[i2-1][j2], dp[i2][j2-1]);
+      }
+    }
+    return dp[m][n];
+  }
+
+  function scoreItemAgainstQuery(query, item){
+    var q = normalizeAr(query);
+    if(!q) return 0;
+    var candidates = [item.name].concat(item.aliases || []).map(normalizeAr);
+    var best = 0;
+    for(var i=0; i<candidates.length; i++){
+      var c = candidates[i];
+      if(!c) continue;
+      var s = 0;
+      if(c === q) s = 100;
+      else if(c.indexOf(q) === 0) s = 88;
+      else if(c.indexOf(q) !== -1) s = 78;
+      else {
+        var dist = levenshtein(q, c);
+        var maxLen = Math.max(q.length, c.length);
+        s = Math.max(0, (1 - dist/maxLen)) * 65;
+      }
+      if(s > best) best = s;
+    }
+    return best;
+  }
+
+  function findMatches(query, limit){
+    limit = limit || 6;
+    var scored = ALL_ITEMS.map(function(it){
+      return {item: it, score: scoreItemAgainstQuery(query, it)};
+    }).filter(function(x){ return x.score >= 38; });
+    scored.sort(function(a,b){ return b.score - a.score; });
+    return scored.slice(0, limit);
+  }
+
+  function escapeHtml(s){
+    var div = document.createElement('div');
+    div.textContent = s == null ? '' : String(s);
+    return div.innerHTML;
+  }
+
+  // ---------------- State ----------------
+  // state.list is ALWAYS the source of truth for what's on screen.
+  // Remote data is only ever adopted when we can prove it represents a
+  // change made by the OTHER person (see syncTick), so a failed save can
+  // never wipe what you just added.
+  var state = {
+    list: [],
+    identity: null,
+    view: 'browse',
+    expandedCat: null,
+    syncStatus: 'connecting',   // connecting | ok | local
+    lastSyncedJson: null,       // last payload we know both sides agreed on
+    savePending: false
+  };
+
+  var LIST_KEY = 'household-basket-list';
+  var IDENTITY_KEY = 'household-basket-identity';
+  var hasStorage = (typeof window.storage !== 'undefined');
+
+  // ---------------- Storage (best-effort, never blocking) ----------------
+  function readRemote(){
+    if(fbListRef){
+      return fbListRef.once('value')
+        .then(function(snap){ return {ok:true, list: snap.val() || []}; })
+        .catch(function(){ return {ok:false, list:null}; });
+    }
+    if(!hasStorage) return Promise.resolve({ok:false, list:null});
+    return Promise.resolve()
+      .then(function(){ return window.storage.get(LIST_KEY, true); })
+      .then(function(res){
+        if(res && typeof res.value === 'string'){
+          try{ return {ok:true, list: JSON.parse(res.value)}; }
+          catch(e){ return {ok:false, list:null}; }
+        }
+        return {ok:true, list: []};
+      })
+      .catch(function(){ return {ok:false, list:null}; });
+  }
+
+  function writeRemote(list){
+    if(fbListRef){
+      return fbListRef.set(list)
+        .then(function(){ return true; })
+        .catch(function(){ return false; });
+    }
+    if(!hasStorage) return Promise.resolve(false);
+    var payload = JSON.stringify(list);
+    return Promise.resolve()
+      .then(function(){ return window.storage.set(LIST_KEY, payload, true); })
+      .then(function(){ return true; })
+      .catch(function(){
+        // one retry after a short pause
+        return new Promise(function(r){ setTimeout(r, 500); })
+          .then(function(){ return window.storage.set(LIST_KEY, payload, true); })
+          .then(function(){ return true; })
+          .catch(function(){ return false; });
+      });
+  }
+
+  // Save is fire-and-forget: the UI never waits on it.
+  function scheduleSave(){
+    var payload = JSON.stringify(state.list);
+    state.savePending = true;
+    writeRemote(state.list).then(function(ok){
+      state.savePending = false;
+      if(ok){
+        state.lastSyncedJson = payload;
+        state.syncStatus = 'ok';
+      } else {
+        state.syncStatus = 'local';
+      }
+      renderSyncBadge();
+    });
+  }
+
+  function loadIdentity(){
+    if(!hasStorage) return Promise.resolve(null);
+    return Promise.resolve()
+      .then(function(){ return window.storage.get(IDENTITY_KEY, false); })
+      .then(function(res){ return res ? res.value : null; })
+      .catch(function(){ return null; });
+  }
+
+  function saveIdentity(name){
+    if(!hasStorage) return;
+    Promise.resolve()
+      .then(function(){ return window.storage.set(IDENTITY_KEY, name, false); })
+      .catch(function(){ /* non-critical */ });
+  }
+
+  // ---------------- DOM refs ----------------
+  var els = {};
+  function grab(){
+    ['searchForm','searchInput','suggestionsBox','listContainer','progressText','progressFill',
+     'progressRow','chipsRow','itemsGrid','clearCheckedBtn','clearAllBtn','listActions',
+     'identityModal','identityBadge','customNameForm','customNameInput','toast',
+     'syncDot','syncText','browseView','cartView','cartBtn','cartCount','cartBar',
+     'cartBarCount','backBtn'
+    ].forEach(function(id){
+      els[id] = document.getElementById(id);
+    });
+  }
+
+  // ---------------- Rendering ----------------
+  function totalCount(){
+    return state.list.length;
+  }
+
+  function renderCartIndicators(){
+    var n = totalCount();
+    if(n > 0){
+      els.cartCount.hidden = false;
+      els.cartCount.textContent = n;
+      els.cartBarCount.textContent = n;
+      els.cartBar.hidden = (state.view === 'cart');
+    } else {
+      els.cartCount.hidden = true;
+      els.cartBar.hidden = true;
+    }
+  }
+
+  function renderSyncBadge(){
+    if(state.syncStatus === 'ok'){
+      els.syncDot.className = 'sync-dot';
+      els.syncText.textContent = fbListRef
+        ? 'متزامن مع Firebase 🔥 (فوري)'
+        : 'متزامن ✅ — رنا بتشوف نفس القائمة';
+    } else if(state.syncStatus === 'local'){
+      els.syncDot.className = 'sync-dot warn';
+      els.syncText.textContent = 'محفوظة على هذا الجهاز — بنحاول نزامن...';
+    } else {
+      els.syncDot.className = 'sync-dot pulsing';
+      els.syncText.textContent = 'جاري التزامن...';
+    }
+  }
+
+  function rowHtml(x){
+    var meta = x.addedBy ? ('أضافه ' + escapeHtml(x.addedBy)) : '';
+    return '<div class="item-row ' + (x.checked ? 'checked' : '') + '" data-id="' + escapeHtml(x.id) + '">' +
+      '<button class="check-circle" data-action="toggle" type="button" aria-label="تم الشراء">' + (x.checked ? '✔' : '') + '</button>' +
+      '<span class="row-emoji">' + x.emoji + '</span>' +
+      '<span class="row-main">' +
+        '<span class="row-name">' + escapeHtml(x.name) + '</span>' +
+        (meta ? '<span class="row-meta">' + meta + '</span>' : '') +
+      '</span>' +
+      '<span class="qty-stepper">' +
+        '<button data-action="dec" type="button" aria-label="إنقاص">−</button>' +
+        '<span class="qty-num">' + x.qty + '</span>' +
+        '<button data-action="inc" type="button" aria-label="زيادة">+</button>' +
+      '</span>' +
+      '<button class="row-remove" data-action="remove" type="button" aria-label="حذف">🗑️</button>' +
+    '</div>';
+  }
+
+  function renderCart(){
+    var total = state.list.length;
+    var done = state.list.filter(function(x){ return x.checked; }).length;
+
+    if(total === 0){
+      els.progressRow.hidden = true;
+      els.listActions.hidden = true;
+      els.listContainer.innerHTML =
+        '<div class="empty-state">' +
+          '<div class="empty-emoji">🧺</div>' +
+          '<div class="empty-title">السلة فاضية</div>' +
+          '<div class="empty-sub">ارجعوا واختاروا أغراض من الفئات أو من البحث</div>' +
+          '<button class="empty-cta" type="button" data-action="go-browse">اختيار أغراض</button>' +
+        '</div>';
+      return;
+    }
+
+    els.progressRow.hidden = false;
+    els.listActions.hidden = false;
+    els.progressText.textContent = done + ' من ' + total + ' تم شراؤه';
+    els.progressFill.style.width = ((done/total)*100) + '%';
+
+    var html = '';
+    CATEGORY_ORDER.forEach(function(catId){
+      var items = state.list.filter(function(x){
+        var ref = ITEM_BY_ID[x.id];
+        return (ref ? ref.catId : null) === catId;
+      });
+      if(!items.length) return;
+      var cat = CATALOG.filter(function(c){ return c.id === catId; })[0];
+      html += '<div class="list-group"><div class="list-group-title">' + cat.emoji + ' ' + cat.name + '</div>';
+      html += items.map(rowHtml).join('');
+      html += '</div>';
+    });
+    var others = state.list.filter(function(x){ return !ITEM_BY_ID[x.id]; });
+    if(others.length){
+      html += '<div class="list-group"><div class="list-group-title">🛒 أشياء تانية</div>';
+      html += others.map(rowHtml).join('');
+      html += '</div>';
+    }
+    els.listContainer.innerHTML = html;
+  }
+
+  function renderCategoryChips(){
+    els.chipsRow.innerHTML = CATALOG.map(function(cat){
+      var active = state.expandedCat === cat.id ? 'active' : '';
+      return '<button class="chip ' + active + '" type="button" data-cat="' + cat.id + '">' +
+        '<span class="chip-emoji">' + cat.emoji + '</span><span>' + cat.name + '</span></button>';
+    }).join('');
+  }
+
+  function renderCategoryItems(){
+    if(!state.expandedCat){ els.itemsGrid.innerHTML = ''; return; }
+    var cat = CATALOG.filter(function(c){ return c.id === state.expandedCat; })[0];
+    if(!cat){ els.itemsGrid.innerHTML = ''; return; }
+    els.itemsGrid.innerHTML = cat.items.map(function(it){
+      var inList = state.list.filter(function(x){ return x.id === it.id; })[0];
+      var badge = inList ? '<span class="tile-badge">' + inList.qty + '</span>' : '';
+      return '<button class="tile ' + (inList ? 'in-cart' : '') + '" type="button" data-id="' + it.id + '">' +
+        '<span class="tile-emoji">' + it.emoji + '</span>' +
+        '<span class="tile-name">' + it.name + '</span>' +
+        badge +
+      '</button>';
+    }).join('');
+  }
+
+  function renderAll(){
+    try{ renderCartIndicators(); }catch(e){}
+    try{ if(state.view === 'cart') renderCart(); else renderCategoryItems(); }catch(e){}
+    try{ renderSyncBadge(); }catch(e){}
+  }
+
+  function setView(view){
+    state.view = view;
+    els.browseView.hidden = (view !== 'browse');
+    els.cartView.hidden = (view !== 'cart');
+    if(view === 'cart') renderCart(); else renderCategoryItems();
+    renderCartIndicators();
+    window.scrollTo(0, 0);
+  }
+
+  function showToast(msg){
+    els.toast.textContent = msg;
+    els.toast.classList.add('show');
+    clearTimeout(els.toast._t);
+    els.toast._t = setTimeout(function(){ els.toast.classList.remove('show'); }, 1600);
+  }
+
+  function updateIdentityBadge(){
+    els.identityBadge.textContent = state.identity ? state.identity[0] : '؟';
+  }
+
+  // ---------------- Actions (all synchronous → UI always responds) ----------------
+  function addItem(itemDef, isCustom){
+    var existing = state.list.filter(function(x){ return x.id === itemDef.id; })[0];
+    if(existing){
+      existing.qty += 1;
+    } else {
+      state.list.push({
+        id: itemDef.id,
+        name: itemDef.name,
+        emoji: itemDef.emoji || '🛒',
+        qty: 1,
+        checked: false,
+        addedBy: state.identity || '',
+        ts: Date.now()
+      });
+    }
+    renderAll();
+    showToast('تمت إضافة ' + itemDef.name + ' ✅');
+    scheduleSave();
+  }
+
+  function mutateItem(id, action){
+    var item = state.list.filter(function(x){ return x.id === id; })[0];
+    if(!item) return;
+    if(action === 'toggle') item.checked = !item.checked;
+    else if(action === 'inc') item.qty += 1;
+    else if(action === 'dec'){
+      item.qty -= 1;
+      if(item.qty <= 0) state.list = state.list.filter(function(x){ return x.id !== id; });
+    }
+    else if(action === 'remove'){
+      state.list = state.list.filter(function(x){ return x.id !== id; });
+      showToast('تم حذف ' + item.name);
+    }
+    renderAll();
+    scheduleSave();
+  }
+
+  function renderSuggestions(matches, rawQuery){
+    els.suggestionsBox.hidden = false;
+    var html = '';
+    if(matches.length && matches[0].score < 78){
+      html += '<div class="suggest-hint">يمكن قصدك:</div>';
+    }
+    html += matches.map(function(m){
+      return '<button class="suggest-chip" type="button" data-id="' + m.item.id + '">' +
+        m.item.emoji + ' ' + m.item.name + '</button>';
+    }).join('');
+    html += '<button class="add-custom-btn" type="button" data-raw="' + escapeHtml(rawQuery) + '">➕ إضافة "' + escapeHtml(rawQuery) + '" كصنف جديد</button>';
+    els.suggestionsBox.innerHTML = html;
+  }
+
+  function clearSearch(){
+    els.searchInput.value = '';
+    els.suggestionsBox.hidden = true;
+    els.suggestionsBox.innerHTML = '';
+  }
+
+  // ---------------- Events ----------------
+  function bindEvents(){
+    els.searchInput.addEventListener('input', function(){
+      var q = els.searchInput.value.trim();
+      if(!q){ clearSearch(); return; }
+      renderSuggestions(findMatches(q, 6), q);
+    });
+
+    els.searchForm.addEventListener('submit', function(e){
+      e.preventDefault();
+      var q = els.searchInput.value.trim();
+      if(!q) return;
+      var matches = findMatches(q, 1);
+      if(matches.length && matches[0].score >= 78) addItem(matches[0].item);
+      else addItem({id: 'custom-' + Date.now(), name: q, emoji: '🛒'}, true);
+      clearSearch();
+    });
+
+    els.suggestionsBox.addEventListener('click', function(e){
+      var chip = e.target.closest('.suggest-chip');
+      if(chip){
+        var item = ITEM_BY_ID[chip.dataset.id];
+        if(item) addItem(item);
+        clearSearch();
+        return;
+      }
+      var customBtn = e.target.closest('.add-custom-btn');
+      if(customBtn){
+        var raw = customBtn.dataset.raw;
+        if(raw) addItem({id: 'custom-' + Date.now(), name: raw, emoji: '🛒'}, true);
+        clearSearch();
+      }
+    });
+
+    els.chipsRow.addEventListener('click', function(e){
+      var btn = e.target.closest('.chip');
+      if(!btn) return;
+      var catId = btn.dataset.cat;
+      state.expandedCat = (state.expandedCat === catId) ? null : catId;
+      renderCategoryChips();
+      renderCategoryItems();
+    });
+
+    els.itemsGrid.addEventListener('click', function(e){
+      var btn = e.target.closest('.tile');
+      if(!btn) return;
+      var item = ITEM_BY_ID[btn.dataset.id];
+      if(item) addItem(item);
+    });
+
+    els.listContainer.addEventListener('click', function(e){
+      var goBrowse = e.target.closest('[data-action="go-browse"]');
+      if(goBrowse){ setView('browse'); return; }
+      var row = e.target.closest('.item-row');
+      if(!row) return;
+      var btn = e.target.closest('button');
+      if(!btn || !btn.dataset.action) return;
+      mutateItem(row.dataset.id, btn.dataset.action);
+    });
+
+    els.clearCheckedBtn.addEventListener('click', function(){
+      if(!state.list.some(function(x){ return x.checked; })) return;
+      if(confirm('مسح كل الأصناف يلي تم شراؤها؟')){
+        state.list = state.list.filter(function(x){ return !x.checked; });
+        renderAll();
+        scheduleSave();
+      }
+    });
+
+    els.clearAllBtn.addEventListener('click', function(){
+      if(!state.list.length) return;
+      if(confirm('متأكدين إنكم بدكم تفرغوا السلة بالكامل؟ ما في رجعة.')){
+        state.list = [];
+        renderAll();
+        scheduleSave();
+      }
+    });
+
+    els.cartBtn.addEventListener('click', function(){
+      setView(state.view === 'cart' ? 'browse' : 'cart');
+    });
+    els.cartBar.addEventListener('click', function(){ setView('cart'); });
+    els.backBtn.addEventListener('click', function(){ setView('browse'); });
+
+    els.identityBadge.addEventListener('click', function(){ els.identityModal.hidden = false; });
+
+    els.identityModal.addEventListener('click', function(e){
+      var btn = e.target.closest('[data-name]');
+      if(!btn) return;
+      state.identity = btn.dataset.name;
+      saveIdentity(state.identity);
+      els.identityModal.hidden = true;
+      updateIdentityBadge();
+    });
+
+    els.customNameForm.addEventListener('submit', function(e){
+      e.preventDefault();
+      var val = els.customNameInput.value.trim();
+      if(!val) return;
+      state.identity = val;
+      saveIdentity(val);
+      els.identityModal.hidden = true;
+      els.customNameInput.value = '';
+      updateIdentityBadge();
+    });
+  }
+
+  // ---------------- Sync ----------------
+  // Adopt remote ONLY when it differs from the last state both sides agreed
+  // on — that means the other person changed something. If our own save
+  // failed, lastSyncedJson still matches remote, so nothing gets wiped.
+  function syncTick(){
+    if(state.savePending) return;
+    readRemote().then(function(res){
+      if(!res.ok || !Array.isArray(res.list)) return;
+      var remoteJson = JSON.stringify(res.list);
+      var localJson = JSON.stringify(state.list);
+
+      if(remoteJson === localJson){
+        state.lastSyncedJson = remoteJson;
+        state.syncStatus = 'ok';
+        renderSyncBadge();
+        return;
+      }
+      if(state.lastSyncedJson !== null && remoteJson !== state.lastSyncedJson){
+        // the other person changed something → adopt it
+        state.list = res.list;
+        state.lastSyncedJson = remoteJson;
+        state.syncStatus = 'ok';
+        renderAll();
+        return;
+      }
+      // remote is stale relative to us (our save hasn't landed) → push again
+      scheduleSave();
+    });
+  }
+
+  function startSync(){
+    if(fbListRef){
+      fbListRef.on('value', function(snap){
+        if(state.savePending) return;
+        var remote = snap.val() || [];
+        var remoteJson = JSON.stringify(remote);
+        var localJson = JSON.stringify(state.list);
+        if(remoteJson === localJson){
+          state.lastSyncedJson = remoteJson;
+          state.syncStatus = 'ok';
+          renderSyncBadge();
+          return;
+        }
+        if(state.lastSyncedJson !== null && remoteJson !== state.lastSyncedJson){
+          state.list = remote;
+          state.lastSyncedJson = remoteJson;
+          state.syncStatus = 'ok';
+          renderAll();
+        }
+      }, function(){ /* connection issue — keep local */ });
+      return;
+    }
+    if(!hasStorage){
+      state.syncStatus = 'local';
+      renderSyncBadge();
+      return;
+    }
+    setInterval(syncTick, 4000);
+  }
+
+  // ---------------- Init ----------------
+  function init(){
+    grab();
+    bindEvents();
+    renderCategoryChips();
+    state.expandedCat = CATALOG[0].id;
+    renderCategoryChips();
+    renderCategoryItems();
+    renderCartIndicators();
+    renderSyncBadge();
+
+    loadIdentity().then(function(name){
+      state.identity = name;
+      updateIdentityBadge();
+      if(!state.identity) els.identityModal.hidden = false;
+    });
+
+    readRemote().then(function(res){
+      if(res.ok && Array.isArray(res.list)){
+        state.list = res.list;
+        state.lastSyncedJson = JSON.stringify(res.list);
+        state.syncStatus = 'ok';
+      } else {
+        state.syncStatus = 'local';
+      }
+      renderAll();
+      startSync();
+    });
+  }
+
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+})();
+</script>
+</body>
+</html>
