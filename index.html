@@ -3,6 +3,7 @@
 
 
 
+
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -502,8 +503,8 @@
 
   // Renders an item's emoji, optionally tinted via CSS hue-rotate when the
   // item defines a `hue` (used e.g. to reuse one emoji glyph across color variants).
-  function emojiSpan(emoji, hue, cls){
-    var style = hue ? ' style="filter:hue-rotate(' + hue + 'deg) saturate(1.35)"' : '';
+  function emojiSpan(emoji, filterCss, cls){
+    var style = filterCss ? ' style="filter:' + filterCss + '"' : '';
     return '<span class="' + cls + '"' + style + '>' + (emoji || '') + '</span>';
   }
 
@@ -647,7 +648,7 @@
     var meta = x.addedBy ? ('أضافه ' + escapeHtml(x.addedBy)) : '';
     return '<div class="item-row ' + (x.checked ? 'checked' : '') + '" data-id="' + escapeHtml(x.id) + '">' +
       '<button class="check-circle" data-action="toggle" type="button" aria-label="تم الشراء">' + (x.checked ? '✔' : '') + '</button>' +
-      '<span class="row-emoji"' + (x.hue ? ' style="filter:hue-rotate(' + x.hue + 'deg) saturate(1.35)"' : '') + '>' + x.emoji + '</span>' +
+      '<span class="row-emoji"' + (x.filterCss ? ' style="filter:' + x.filterCss + '"' : '') + '>' + x.emoji + '</span>' +
       '<span class="row-main">' +
         '<span class="row-name">' + escapeHtml(x.name) + '</span>' +
         (meta ? '<span class="row-meta">' + meta + '</span>' : '') +
@@ -720,7 +721,7 @@
       var inList = state.list.filter(function(x){ return x.id === it.id; })[0];
       var badge = inList ? '<span class="tile-badge">' + inList.qty + '</span>' : '';
       return '<button class="tile ' + (inList ? 'in-cart' : '') + '" type="button" data-id="' + it.id + '">' +
-        emojiSpan(it.emoji, it.hue, 'tile-emoji') +
+        emojiSpan(it.emoji, it.filterCss, 'tile-emoji') +
         '<span class="tile-name">' + it.name + '</span>' +
         badge +
       '</button>';
@@ -763,7 +764,7 @@
         id: itemDef.id,
         name: itemDef.name,
         emoji: itemDef.emoji || '🛒',
-        hue: itemDef.hue || 0,
+        filterCss: itemDef.filterCss || '',
         qty: 1,
         checked: false,
         addedBy: state.identity || '',
@@ -800,7 +801,7 @@
     }
     html += matches.map(function(m){
       return '<button class="suggest-chip" type="button" data-id="' + m.item.id + '">' +
-        emojiSpan(m.item.emoji, m.item.hue, 'chip-item-emoji') + ' ' + m.item.name + '</button>';
+        emojiSpan(m.item.emoji, m.item.filterCss, 'chip-item-emoji') + ' ' + m.item.name + '</button>';
     }).join('');
     html += '<button class="add-custom-btn" type="button" data-raw="' + escapeHtml(rawQuery) + '">➕ إضافة "' + escapeHtml(rawQuery) + '" كصنف جديد</button>';
     els.suggestionsBox.innerHTML = html;
